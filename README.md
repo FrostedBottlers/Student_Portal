@@ -134,4 +134,4 @@ Next.js 16 requires **Node.js ≥ 20.9.0**. The `.nvmrc` file is included — ru
 
 ## License
 
-GPL-3.0 — see [LICENSE.txt](LICENSE.txt)
+AGPL-3.0 — see [LICENSE.txt](LICENSE.txt)
