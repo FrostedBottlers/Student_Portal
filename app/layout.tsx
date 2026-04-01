@@ -1,3 +1,4 @@
+import type React from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -13,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Student Portal — SRMIST",
+  title: "Student Portal — ReVanced",
   description:
-    "Access your academic and financial details on the SRMIST Student Portal.",
+    "A revanced student portal experience. Access your academic and financial details with a modern interface.",
 };
 
 export default function RootLayout({
@@ -24,11 +25,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className="dark">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
+      >
+        {children}
+      </body>
     </html>
   );
 }
