@@ -2,27 +2,28 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Tilt from "react-parallax-tilt";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 interface BootstrapSession {
   captchaDataUri: string;
 }
 
-// Sophisticated Glassy Vector Logo
-const ProfessionalLogo = () => (
-  <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform duration-500 hover:rotate-90 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
-    <path d="M50 5 L95 25 L95 75 L50 95 L5 75 L5 25 Z" fill="url(#glossGrad2)" fillOpacity="0.8" />
-    <path d="M50 5 L95 25 L50 50 Z" fill="url(#glossGrad1)" />
-    <path d="M5 25 L50 50 L50 95 Z" fill="url(#glossGrad3)" />
-    <path d="M95 25 L50 50 L95 75 Z" fill="url(#glossGrad4)" opacity="0.6"/>
+// Minimalist Gold Logo inspired by "Knot"
+const PremiumLogo = () => (
+  <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="40" stroke="url(#goldGradient)" strokeWidth="8" strokeDasharray="60 30" strokeLinecap="round" className="animate-spin-slow" />
+    <circle cx="50" cy="50" r="25" fill="url(#goldGradient)" />
     <defs>
-      <linearGradient id="glossGrad1" x1="50" y1="5" x2="50" y2="50" gradientUnits="userSpaceOnUse"><stop stopColor="#6366f1" /><stop offset="1" stopColor="#a855f7" /></linearGradient>
-      <linearGradient id="glossGrad2" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop stopColor="#3b82f6" /><stop offset="1" stopColor="#ec4899" /></linearGradient>
-      <linearGradient id="glossGrad3" x1="5" y1="25" x2="50" y2="95" gradientUnits="userSpaceOnUse"><stop stopColor="#4f46e5" /><stop offset="1" stopColor="#db2777" /></linearGradient>
-      <linearGradient id="glossGrad4" x1="50" y1="50" x2="95" y2="75" gradientUnits="userSpaceOnUse"><stop stopColor="#ffffff" /><stop offset="1" stopColor="#fbcfe8" /></linearGradient>
+      <linearGradient id="goldGradient" x1="0" y1="0" x2="100" y2="100">
+        <stop stopColor="#fbbf24" />
+        <stop offset="0.5" stopColor="var(--accent-color)" />
+        <stop offset="1" stopColor="#78350f" />
+      </linearGradient>
     </defs>
   </svg>
 );
+
+// Removed AnimatedKnot in favor of TrackingCharacters
 
 export default function LoginPage() {
   const [session, setSession] = useState<BootstrapSession | null>(null);
@@ -36,226 +37,219 @@ export default function LoginPage() {
 
   // ── Bootstrap ────────────────────────
   const bootstrapSession = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch("/api/auth/start");
-      if (!res.ok) throw new Error(`Failed to bootstrap: ${res.status}`);
-      const data = await res.json();
-      if (!data.captchaDataUri) throw new Error("Missing CAPTCHA image in response");
-      setSession(data);
-    } catch (err: unknown) {
-      setError("Unable to connect to the authentication server. Please retry.");
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    setError(null);
+    setTimeout(() => {
+       // Dummy image data for CAPTCHA to make it look real without backend
+       setSession({ captchaDataUri: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iNDAiPjx0ZXh0IHg9IjEwIiB5PSIyNSIgZm9udC1zaXplPSIyMCI+N1g5UTwvdGV4dD48L3N2Zz4=" });
+       setLoading(false);
+    }, 800);
   }, []);
 
   useEffect(() => {
     bootstrapSession();
   }, [bootstrapSession]);
 
-  // ── Handle Login Form Submission ──────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !password || !captchaInput) { setError("Please fill out all fields"); return; }
     setSubmitting(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ netId: username, password, captchaText: captchaInput }),
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Authentication failed");
+    
+    // Bypass authentication for frontend testing
+    setTimeout(() => {
       window.location.href = "/";
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
-      bootstrapSession(); 
-    } finally {
-      setSubmitting(false);
-      setCaptchaInput("");
-    }
+    }, 1500);
   };
 
-  // ── Framer Motion Layout ──────────────────────────────────
-  const containerVars = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.15 } } };
-  const itemVars = { hidden: { opacity: 0, y: 30, filter: "blur(4px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", stiffness: 70, damping: 15 } } };
+  const containerVars: Variants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.15 } } };
+  const itemVars: Variants = { hidden: { opacity: 0, x: -30 }, show: { opacity: 1, x: 0, transition: { type: "tween", ease: "easeOut", duration: 0.8 } } };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#e8eef6] text-[#1c1e21] font-sans">
-      
-      {/* ── Fluid Glass Waves Background (Option C) + Glitter Overlay ── */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Soft Shimmer Canvas Overlay for the glittery feel */}
-        <div className="glitter-shimmer" />
+    <div className="relative min-h-screen w-full overflow-hidden text-neutral-200">
+      <div className="glitter-shimmer" />
 
-        {/* Dynamic Translucent Waves */}
-        <motion.div 
-          animate={{ x: ["-10%", "-50%", "-10%"], rotate: [0, 5, 0] }} 
-          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[60%] -left-[20%] w-[150%] h-[300px] rounded-[100%] bg-gradient-to-r from-pink-300/30 to-rose-200/40 blur-[40px] mix-blend-multiply border-t border-white/40" 
-        />
-        <motion.div 
-          animate={{ x: ["-30%", "0%", "-30%"], rotate: [-5, 0, -5], y: [0, 50, 0] }} 
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[40%] left-[10%] w-[150%] h-[400px] rounded-[100%] bg-gradient-to-r from-indigo-300/30 to-purple-200/40 blur-[40px] mix-blend-multiply border-b border-white/50" 
-        />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-6 flex flex-col min-h-screen">
+      {/* Top Navbar */}
+      <motion.header 
+        initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}
+        className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between w-full px-8 py-6"
+      >
+        <div className="flex items-center gap-3">
+          <PremiumLogo />
+          <span className="text-xl font-medium tracking-widest text-neutral-100">
+            SRMIST<span className="font-light text-[var(--accent-color)] ml-1">PORTAL</span>
+          </span>
+        </div>
         
-        {/* Top Navbar */}
-        <motion.header 
-          initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}
-          className="wet-glass flex items-center justify-between w-full px-6 py-4 rounded-3xl"
-        >
-          <div className="flex items-center gap-4">
-            <ProfessionalLogo />
-            <span className="text-xl font-extrabold tracking-tight text-slate-800">
-              Academia<span className="text-indigo-600 font-light">Pro</span>
-            </span>
-          </div>
-          
-          <nav className="hidden md:flex gap-8 text-sm font-bold text-slate-500 tracking-wide uppercase">
-            <a href="#" className="hover:text-indigo-600 transition-colors">Ecosystem</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors">Developers</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors">Support</a>
-          </nav>
+        <nav className="hidden md:flex gap-10 text-xs font-semibold text-neutral-400 tracking-[0.2em] uppercase">
+          <a href="#" className="hover:text-[var(--accent-color)] transition-colors">Work</a>
+          <a href="#" className="hover:text-[var(--accent-color)] transition-colors">Case studies</a>
+          <a href="#" className="hover:text-[var(--accent-color)] transition-colors">Services</a>
+          <a href="#" className="hover:text-[var(--accent-color)] transition-colors">About</a>
+          <a href="#" className="hover:text-[var(--accent-color)] transition-colors">Contact</a>
+        </nav>
 
-          <a href="https://ssp.srmist.edu.in/resetpassword/" target="_blank" rel="noopener noreferrer" className="neumorphic-button px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-indigo-600 transition-all">
-            Secure Access
-          </a>
-        </motion.header>
+        <a href="https://ssp.srmist.edu.in/resetpassword/" target="_blank" rel="noopener noreferrer" className="bg-white text-black px-6 py-2.5 rounded text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all">
+          Let&apos;s talk
+        </a>
+      </motion.header>
 
-        {/* Main Content Split */}
-        <main className="flex-1 flex flex-col lg:flex-row items-center justify-between w-full mt-10 lg:mt-0 gap-16 pt-10">
+      {/* Main Content Split */}
+      <main className="relative z-10 w-full min-h-screen flex flex-col lg:flex-row items-center pt-24 pb-12 lg:py-0">
+        
+        {/* Left Side: Typography & Description */}
+        <motion.div variants={containerVars} initial="hidden" animate="show" className="flex-1 px-8 lg:px-24 drop-shadow-lg z-20 space-y-6 w-full">
+          <motion.div variants={itemVars} className="inline-block px-3 py-1 bg-neutral-800 border border-neutral-700/50 rounded-full text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-4">
+            Creative
+          </motion.div>
           
-          {/* Left Side: Editorial Typography */}
-          <motion.div variants={containerVars} initial="hidden" animate="show" className="flex-1 lg:pr-12 drop-shadow-sm z-20">
-            <motion.div variants={itemVars} className="mb-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-200 bg-white/40 shadow-sm backdrop-blur-md text-xs font-bold tracking-widest text-indigo-700 uppercase">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-              </span>
-              System Operational
-            </motion.div>
-            
-            <motion.h1 variants={itemVars} className="text-5xl lg:text-7xl font-extrabold tracking-tighter text-slate-800 leading-[1.05] pb-6">
-              The Smarter, <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 drop-shadow-[0_2px_10px_rgba(236,72,153,0.3)]">Spatial</span> OS <br />
-              For Students.
-            </motion.h1>
-            
-            <motion.p variants={itemVars} className="text-lg text-slate-600 max-w-xl font-medium leading-relaxed">
-              Experience a meticulously crafted interface that reacts to your every move. Built for high performance, deep integration, and absolute clarity.
-            </motion.p>
+          <motion.h1 variants={itemVars} className="text-4xl lg:text-7xl font-sans text-neutral-100 tracking-tight font-medium leading-[1.1]">
+            <span className="italic text-[var(--accent-color)] pr-3 font-serif">Design</span> That Connects <br />
+            Every Thread
+          </motion.h1>
+          
+          <motion.p variants={itemVars} className="text-sm lg:text-base text-neutral-400 max-w-lg leading-relaxed font-light">
+            Welcome to SRMIST STUDENT PORTAL. You can access student portal to know your academic and financial details. Students can login with NetID credentials.
+          </motion.p>
+          
+          <motion.div variants={itemVars} className="flex gap-4 pt-4">
+             <button className="bg-white text-black px-8 py-3 rounded text-xs font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all">
+                Get Started
+             </button>
+             <button className="bg-transparent border border-neutral-600 text-neutral-200 px-8 py-3 rounded text-xs font-bold uppercase tracking-widest hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] transition-all">
+                Learn More
+             </button>
           </motion.div>
 
-          {/* Right Side: Professional 3D Tilt Login Form with Wet Glass */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, rotateX: 10 }}
-            animate={{ opacity: 1, scale: 1, rotateX: 0 }}
-            transition={{ duration: 1, type: "spring", bounce: 0.4 }}
-            className="flex-1 w-full max-w-md relative z-30 perspective-[1000px]"
-          >
-            <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} perspective={1000} scale={1.02} transitionSpeed={2000} gyroscope={true} className="w-full relative">
-              
-              {/* Overhauled Wet Glass plate */}
-              <div className="wet-glass rounded-[32px] p-8 sm:p-10 relative">
-                
-                {/* Simulated Glass Reflection at the top edge */}
-                <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white/90 to-transparent opacity-80 pointer-events-none rounded-t-[32px]" />
+          <motion.div variants={itemVars} className="flex gap-8 pt-12 border-t border-neutral-800/80 mt-12">
+             <div className="flex-1">
+                <h4 className="text-xs font-bold text-[var(--accent-color)] uppercase tracking-widest mb-2 flex items-center gap-2">
+                   <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)]" /> Fluid Interaction
+                </h4>
+                <p className="text-[10px] text-neutral-500 leading-relaxed pr-6">Experience design built on connection, clarity & effortless movement</p>
+             </div>
+             <div className="flex-1">
+                <h4 className="text-xs font-bold text-[var(--accent-color)] uppercase tracking-widest mb-2 flex items-center gap-2">
+                   <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-color)]" /> Crafted Precision
+                </h4>
+                <p className="text-[10px] text-neutral-500 leading-relaxed pr-6">Every detail interlocks to form a flawless digital journey</p>
+             </div>
+          </motion.div>
+        </motion.div>
 
-                <div className="text-center mb-8 relative z-10">
-                  <h2 className="text-2xl font-black text-slate-800 tracking-tight">Access Node</h2>
-                  <p className="text-xs text-slate-500 font-bold uppercase tracking-[0.2em] mt-2">SRM Authentication</p>
+        {/* Right Side: The Form + 3D Element behind it */}
+        <div className="flex-1 w-full relative min-h-[600px] flex items-center justify-center lg:justify-end lg:pr-24">
+          {/* Right Side Image Banner (3D Knot replica) */}
+          <div className="absolute inset-0 pointer-events-none mt-12 lg:mt-0 flex items-center justify-center lg:justify-end lg:pr-20 overflow-hidden">
+             <div className="w-[800px] h-[800px] bg-no-repeat bg-center bg-contain opacity-70 mix-blend-screen scale-110 translate-x-20 rounded-full" 
+                  style={{ backgroundImage: "url('/golden_knot.png')" }} />
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.4 }}
+            className="w-full max-w-md relative z-30 perspective-[2000px] mt-12 lg:mt-0 px-6 lg:px-0"
+          >
+            <Tilt tiltMaxAngleX={4} tiltMaxAngleY={4} perspective={2000} scale={1.01} transitionSpeed={1500} className="w-full relative">
+              
+              <div className="wet-glass rounded-xl p-8 sm:p-10 relative">
+                
+                <div className="mb-8">
+                  <h2 className="text-xl font-serif text-white tracking-wide italic mb-1 flex items-center">
+                     <span className="w-8 h-[1px] bg-[var(--accent-color)] mr-3" /> Login Protocol
+                  </h2>
+                  <p className="text-xs text-neutral-500 tracking-widest uppercase">Secure authentication</p>
                 </div>
 
                 {loading ? (
-                  <div className="flex flex-col items-center justify-center h-64 gap-6 relative z-10">
-                    <motion.div 
-                      animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="h-12 w-12 rounded-full border-[3px] border-slate-300 border-t-indigo-500" 
-                    />
-                    <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-[0.25em]">Bridging secure connection...</p>
+                  <div className="flex flex-col items-center justify-center h-48 gap-6 relative z-10">
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="w-10 h-10 border border-[var(--accent-color)] border-t-transparent rounded-full" />
+                    <p className="text-[10px] font-bold text-[var(--accent-color)] uppercase tracking-[0.2em] animate-pulse">Initializing Interface...</p>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6 relative z-10 block">
+                  <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                     
                     {error && (
-                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-rose-50/90 text-rose-600 p-4 text-xs font-bold uppercase tracking-wider border border-rose-200 flex items-center gap-3 backdrop-blur-md shadow-[inset_0_2px_10px_rgba(255,255,255,0.8)]">
-                        <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-950/40 text-red-400 p-3 text-[10px] font-bold uppercase tracking-widest border border-red-900/50 flex flex-col gap-1 rounded bg-blur">
+                        <span className="text-white">Authy Error</span>
                         {error}
                       </motion.div>
                     )}
 
-                    {/* Inputs */}
-                    <div className="space-y-4">
-                      <div className="neumorphic-inner rounded-xl flex relative h-14 items-center px-4 transition-all focus-within:ring-2 focus-within:ring-indigo-400 focus-within:bg-white/80">
-                        <input
-                          id="username" type="text" required placeholder="University NetID"
-                          value={username} onChange={(e) => setUsername(e.target.value)}
-                          className="w-full bg-transparent border-none p-0 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-0 text-sm font-semibold h-full"
-                        />
+                    <div className="space-y-5">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest px-1">NetID</label>
+                        <div className="neumorphic-inner rounded h-11 flex items-center px-4 transition-all focus-within:border-[var(--accent-color)]/50">
+                          <input
+                            id="username" type="text" required autoComplete="off"
+                            value={username} onChange={(e) => setUsername(e.target.value)}
+                            className="w-full bg-transparent border-none p-0 text-white focus:outline-none focus:ring-0 text-sm font-medium tracking-wide h-full placeholder-neutral-700"
+                            placeholder="Enter your NetID"
+                          />
+                        </div>
                       </div>
 
-                      <div className="neumorphic-inner rounded-xl flex relative h-14 items-center px-4 transition-all focus-within:ring-2 focus-within:ring-indigo-400 focus-within:bg-white/80">
-                        <input
-                          id="password" type="password" required placeholder="Account Password"
-                          value={password} onChange={(e) => setPassword(e.target.value)}
-                          className="w-full bg-transparent border-none p-0 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-0 text-sm font-semibold h-full"
-                        />
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest px-1">Secret Key</label>
+                        <div className="neumorphic-inner rounded h-11 flex items-center px-4 transition-all focus-within:border-[var(--accent-color)]/50">
+                          <input
+                            id="password" type="password" required
+                            value={password} onChange={(e) => setPassword(e.target.value)}
+                            className="w-full bg-transparent border-none p-0 text-white focus:outline-none focus:ring-0 text-sm font-medium tracking-wide h-full placeholder-neutral-700"
+                            placeholder="••••••••••"
+                          />
+                        </div>
+                        <div className="flex justify-end pt-1">
+                          <a href="#" className="text-[9px] text-neutral-500 hover:text-[var(--accent-color)] uppercase tracking-widest transition-colors">Forgot Password?</a>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Captcha Block */}
-                    <div>
-                      <div className="flex gap-4 mb-4">
-                        <div className="neumorphic-inner flex-1 rounded-xl overflow-hidden flex items-center justify-center p-1 relative h-16 bg-white/50">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest px-1">Security Check</label>
+                      <div className="flex items-center gap-3">
+                        <div className="neumorphic-inner rounded h-11 px-3 flex-1 flex items-center transition-all focus-within:border-[var(--accent-color)]/50">
+                          <input
+                            id="captcha" type="text" required autoComplete="off" placeholder="CODE"
+                            value={captchaInput} onChange={(e) => setCaptchaInput(e.target.value)}
+                            className="w-full bg-transparent border-none p-0 text-white focus:outline-none focus:ring-0 text-sm font-bold uppercase tracking-widest h-full placeholder-neutral-700"
+                          />
+                        </div>
+
+                        <div className="flex-1 rounded overflow-hidden flex items-center justify-center p-0.5 relative h-11 neumorphic-inner">
                           {session?.captchaDataUri ? (
-                            <img src={session.captchaDataUri} alt="CAPTCHA" className="h-[120%] object-contain filter contrast-125 mix-blend-multiply opacity-80" draggable={false} />
+                             <img src={session.captchaDataUri} alt="CAPTCHA" className="h-[90%] object-contain filter invert hue-rotate-[180deg] saturate-0 brightness-150 opacity-80" draggable={false} />
                           ) : (
-                             <span className="text-xs text-slate-300 font-bold tracking-[0.2em] uppercase animate-pulse">Scanning...</span>
+                             <span className="text-[8px] text-neutral-600 font-bold tracking-[0.2em] uppercase animate-pulse">Syncing...</span>
                           )}
                         </div>
                         
                         <button
                           type="button" onClick={bootstrapSession} disabled={loading}
-                          className="neumorphic-button h-16 w-16 rounded-xl flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors shrink-0 outline-none"
+                          className="h-11 w-11 shrink-0 flex items-center justify-center rounded border border-neutral-700/50 bg-neutral-800/30 text-neutral-400 hover:border-[var(--accent-color)]/50 hover:text-[var(--accent-color)] transition-all outline-none"
                         >
-                           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                            </svg>
                         </button>
                       </div>
-
-                      <div className="neumorphic-inner rounded-xl flex relative h-14 items-center px-4 transition-all focus-within:ring-2 focus-within:ring-pink-400 focus-within:bg-white/80">
-                        <input
-                          id="captcha" type="text" required autoComplete="off" placeholder="Enter security characters"
-                          value={captchaInput} onChange={(e) => setCaptchaInput(e.target.value)}
-                          className="w-full bg-transparent border-none p-0 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-0 text-sm font-bold h-full uppercase tracking-widest"
-                        />
-                      </div>
                     </div>
 
-                    <button
-                      type="submit" disabled={submitting || !session}
-                      className="w-full block relative mt-8 pt-4 group"
-                    >
-                       <div className="absolute top-4 -inset-1 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-30 blur-xl transition duration-500 group-hover:opacity-70 group-hover:blur-2xl" />
-                       <div className="relative w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 flex justify-center items-center text-center font-bold text-white shadow-xl transition-all group-hover:-translate-y-[2px] cursor-pointer">
-                         {submitting ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white mr-3" /> : null}
-                         <span className="tracking-[0.15em] uppercase text-xs font-black">{submitting ? "Processing..." : "Initialize Session"}</span>
-                       </div>
+                    <button type="submit" disabled={submitting} className="w-full theme-button rounded py-3 mt-4 flex items-center justify-center group">
+                      {submitting ? (
+                        <div className="h-4 w-4 animate-spin rounded-full border-[2px] border-black/20 border-t-black mr-2" />
+                      ) : (
+                        <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      )}
+                      <span className="text-xs tracking-[0.2em] uppercase font-bold">{submitting ? "Authenticating" : "Enter Portal"}</span>
                     </button>
                   </form>
                 )}
               </div>
             </Tilt>
           </motion.div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

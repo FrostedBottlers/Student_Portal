@@ -1,129 +1,181 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f0f3f8; /* Soft light background for contrast */
-  --foreground: #1c1e21;
+  /* Theme 1: Premium Dark (Default) */
+  --bg-color: #050505;
+  --text-main: #f0f0f0;
+  --text-muted: #a3a3a3;
+  --accent-color: #d4af37;
+  --accent-hover: #fbbf24;
+  --panel-bg: rgba(15, 15, 15, 0.6);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --shadow-color: rgba(0, 0, 0, 0.8);
+  --font-base: var(--font-inter, sans-serif);
+  --radius-panel: 24px;
+  --input-bg: rgba(5, 5, 5, 0.8);
+  
+  --shadow-neumorphic: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="minecraft"] {
+  /* Theme 2: Minecraft */
+  --bg-color: #71B238; /* Grass top */
+  --text-main: #ffffff;
+  --text-muted: #e0e0e0;
+  --accent-color: #FFD700;
+  --accent-hover: #FFA500;
+  --panel-bg: rgba(139, 69, 19, 0.95); /* Dirt brown */
+  --panel-border: #4d2600;
+  --shadow-color: rgba(0, 0, 0, 0.9);
+  --font-base: var(--font-pixel, monospace);
+  --radius-panel: 0px; 
+  --input-bg: rgba(0, 0, 0, 0.6);
+  
+  --shadow-neumorphic: 6px 6px 0px rgba(0,0,0,0.8);
+}
+
+[data-theme="light"] {
+  /* Theme 3: Neo-Light (From Image) */
+  --bg-color: #EBF0F5; /* Soft extremely muted gray-blue */
+  --text-main: #2A3143;
+  --text-muted: #7A899C;
+  --accent-color: #F43F5E; /* Pink/Rose highlight for marks predictor */
+  --accent-hover: #E11D48;
+  --panel-bg: #EBF0F5;
+  --panel-border: transparent;
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  --font-base: var(--font-inter, sans-serif);
+  --radius-panel: 28px;
+  --input-bg: #E3E8EE;
+  
+  /* Genuine light mode soft neumorphism */
+  --shadow-neumorphic: -10px -10px 25px #ffffff, 10px 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg-color);
+  --color-foreground: var(--text-main);
+  --color-accent: var(--accent-color);
+  --color-panel: var(--panel-bg);
+  --color-muted: var(--text-muted);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-base);
+  transition: background-color 0.4s ease, color 0.4s ease;
+  overflow-x: hidden;
 }
 
-/* ── Option C: Wet Glass Architecture ── */
+/* ── Universal Panel Architecture ── */
 
 .wet-glass {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.7) 0%, rgba(240, 243, 248, 0.4) 100%);
-  border-top: 2px solid rgba(255, 255, 255, 1);
-  border-left: 1px solid rgba(255, 255, 255, 0.8);
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 
-    0 15px 35px rgba(0, 0, 0, 0.05),
-    0 5px 15px rgba(0, 0, 0, 0.03),
-    inset 0 2px 20px rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-neumorphic);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   position: relative;
   overflow: hidden;
+  border-radius: var(--radius-panel);
+  transition: all 0.4s ease;
+  border: 1px solid var(--panel-border);
 }
 
-/* ── The Specular Highlight (The 'Gloss') ── */
-.wet-glass::before {
-  content: "";
-  position: absolute;
-  top: 0; left: -150%;
-  width: 50%; height: 100%;
-  background: linear-gradient(
-    to right, 
-    rgba(255, 255, 255, 0) 0%, 
-    rgba(255, 255, 255, 0.8) 50%, 
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: skewX(-25deg);
-  animation: glossy-sweep 6s infinite;
-  pointer-events: none;
+[data-theme="minecraft"] .wet-glass {
+  border: 4px solid var(--panel-border);
 }
 
-@keyframes glossy-sweep {
-  0% { left: -150%; opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { left: 200%; opacity: 0; }
+/* ── Specialized UI Elements ── */
+
+.theme-button {
+  background: var(--panel-bg);
+  color: var(--text-main);
+  box-shadow: var(--shadow-neumorphic);
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.05em;
+  border-radius: calc(var(--radius-panel) / 2);
+  border: 1px solid var(--panel-border);
 }
 
-/* ── The Glitter / Shimmer Canvas Overlay ── */
-.glitter-shimmer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
-  z-index: 5;
+.theme-button:hover {
+  transform: translateY(-2px);
+  color: var(--accent-color);
 }
 
-/* Optional soft animated glitter particles simulated with background-position shifts */
-.glitter-shimmer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: 
-    radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.9) 1px, transparent 0),
-    radial-gradient(2px 2px at 40% 50%, rgba(255, 255, 255, 0.8) 1px, transparent 0),
-    radial-gradient(1px 1px at 80% 30%, rgba(255, 255, 255, 0.9) 1px, transparent 0),
-    radial-gradient(2px 2px at 90% 80%, rgba(255, 255, 255, 0.8) 1px, transparent 0);
-  background-size: 100px 100px;
-  animation: glimmer 4s linear infinite alternate;
-  mix-blend-mode: color-dodge;
-}
-
-@keyframes glimmer {
-  0% { opacity: 0.2; transform: translateY(0px) scale(1); }
-  50% { opacity: 0.8; transform: translateY(5px) scale(1.02); }
-  100% { opacity: 0.3; transform: translateY(-5px) scale(0.98); }
-}
-
-/* ── Standard Utilities ── */
-
-.neumorphic-button {
-  background: rgba(255, 255, 255, 0.4);
-  box-shadow: 
-    4px 4px 10px rgba(174, 185, 203, 0.2),
-    -4px -4px 10px rgba(255, 255, 255, 0.8),
-    inset 1px 1px 2px rgba(255, 255, 255, 1);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(8px);
-}
-
-.neumorphic-button:active {
-  box-shadow: 
-    inset 4px 4px 8px rgba(174, 185, 203, 0.3),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.8);
-  transform: scale(0.98);
+.theme-button:active {
+  transform: translateY(1px);
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1), inset -2px -2px 5px rgba(255,255,255,0.7);
 }
 
 .neumorphic-inner {
-  background: rgba(240, 243, 248, 0.6);
-  box-shadow: 
-    inset 4px 4px 8px rgba(174, 185, 203, 0.3),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.9);
-  border: 1px solid transparent;
+  background: var(--input-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-panel);
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.05), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .neumorphic-inner {
+  box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.8), inset -1px -1px 3px rgba(255, 255, 255, 0.02);
+}
+[data-theme="minecraft"] .neumorphic-inner {
+  box-shadow: inset 4px 4px 0px rgba(0, 0, 0, 0.6);
 }
 
-/* Crisp animations */
-@keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(30px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+/* ── Range Slider Customization (Used in Image) ── */
+
+input[type=range] {
+  -webkit-appearance: none;
+  background: transparent;
+  width: 100%;
 }
-.animate-enter {
-  animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: var(--input-bg);
+  border-radius: 4px;
+}
+input[type=range]::-webkit-slider-thumb {
+  border: 2px solid var(--bg-color);
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -6px;
+  box-shadow: 0 0 10px var(--accent-color);
+}
+
+/* Background Overlays */
+.theme-bg-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity 1s ease;
+  background-position: center;
+  background-size: cover;
+}
+
+[data-theme="minecraft"] .theme-bg-overlay {
+  background-image: 
+    linear-gradient(rgba(113, 178, 56, 0.9) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(113, 178, 56, 0.9) 2px, transparent 2px);
+  background-size: 32px 32px;
+  background-color: #4d2600;
+}
+
+[data-theme="dark"] .theme-bg-overlay {
+  /* Pure dark with subtle glitch lines */
+  background: radial-gradient(circle at top right, #111111 0%, #050505 100%);
+}
+
+[data-theme="light"] .theme-bg-overlay {
+  /* Subtle light noise layer for textural depth */
+  background: radial-gradient(circle at 50% 0%, #F8FAFC 0%, #EBF0F5 100%);
 }

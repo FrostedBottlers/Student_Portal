@@ -1,34 +1,31 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Inter, Press_Start_2P } from "next/font/google";
+import type { Metadata } from "next";
+import { ThemeProvider } from "./components/ThemeProvider";
+import ThemeSwitcher from "./components/ThemeSwitcher";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-pixel" });
 
 export const metadata: Metadata = {
-  title: "Student Portal — SRMIST",
-  description:
-    "Access your academic and financial details on the SRMIST Student Portal.",
+  title: "Amusable Premium Portal",
+  description: "Next-gen immersive academic portal",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en">
+      <body className={`${inter.variable} ${pixel.variable} antialiased relative`}>
+        <ThemeProvider>
+          <div className="theme-bg-overlay" />
+          <ThemeSwitcher />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
